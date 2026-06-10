@@ -1,0 +1,48 @@
+name: AI Investment Daily Report
+
+on:
+  # 每天墨尔本时间早上 7:00 自动运行（自动处理夏令时）
+  schedule:
+    - cron: "0 7 * * *"
+      timezone: Australia/Melbourne
+
+  # 支持在 GitHub Actions 页面手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
+
+jobs:
+  daily-report:
+    name: Generate & Send Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      TZ: Australia/Melbourne
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+      GMAIL_USER: ${{ secrets.GMAIL_USER }}
+      GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+      RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run daily report
+        run: python main.py
