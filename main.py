@@ -147,7 +147,7 @@ def send_email(subject: str, body: str) -> None:
     """通过 Gmail SMTP 发送邮件。"""
     gmail_user = os.environ["GMAIL_USER"]
     gmail_password = os.environ["GMAIL_APP_PASSWORD"]
-    recipient = os.environ.get("RECIPIENT_EMAIL", gmail_user)
+    recipient = os.environ.get("RECIPIENT_EMAIL") or gmail_user
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
@@ -178,7 +178,7 @@ def main() -> None:
     if not api_key:
         raise SystemExit("错误：请设置 OPENAI_API_KEY（本地 .env 或 GitHub Secrets）")
 
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    model = os.environ.get("OPENAI_MODEL") or "gpt-4o-mini"
     client = OpenAI(api_key=api_key)
 
     print("正在获取股票数据与新闻...")
